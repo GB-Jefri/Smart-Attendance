@@ -432,15 +432,15 @@
                 
                 // Hantar data ke Google Spreadsheet
                 try {
-                    const formData = new FormData();
-                    formData.append('method', 'create');
-                    formData.append('backendId', record.__backendId);
-                    formData.append('type', record.type);
-                    formData.append('nama', record.name || '-');
-                    formData.append('ic', record.ic || '-');
+                    const params = new URLSearchParams();
+                    params.append('method', 'create');
+                    params.append('backendId', record.__backendId);
+                    params.append('type', record.type);
+                    params.append('nama', record.name || '-');
+                    params.append('ic', record.ic || '-');
                     
                     if (record.type === 'attendance') {
-                        formData.append('tarikh', record.date || '-');
+                        params.append('tarikh', record.date || '-');
                         
                         const normRecordDate = standardizeDate(record.date);
                         // Ambil record yang terakhir/terkini sahaja
@@ -452,31 +452,31 @@
                         let masaMasuk = existingIn ? existingIn.time : (record.action === 'masuk' ? record.time : '-');
                         let masaKeluar = existingOut ? existingOut.time : (record.action === 'keluar' ? record.time : '-');
                         
-                        formData.append('masa_masuk', masaMasuk);
-                        formData.append('masa_keluar', masaKeluar);
-                        formData.append('tindakan', record.action); // Menghantar tindakan tulen supaya GS merekod dgn tepat
+                        params.append('masa_masuk', masaMasuk);
+                        params.append('masa_keluar', masaKeluar);
+                        params.append('tindakan', record.action); // Menghantar tindakan tulen supaya GS merekod dgn tepat
                         
                         let allNotes = [];
                         const allToday = data.filter(r => String(r.ic).trim() === String(record.ic).trim() && standardizeDate(r.date) === normRecordDate && r.note && r.note !== '-');
                         allToday.forEach(r => { if (!allNotes.includes(r.note)) allNotes.push(r.note); });
-                        formData.append('catatan', allNotes.length > 0 ? allNotes.join(" | ") : '-');
+                        params.append('catatan', allNotes.length > 0 ? allNotes.join(" | ") : '-');
                         
                     } else if (record.type === 'user') {
-                        formData.append('jawatan', record.role || '-');
-                        formData.append('syif', record.shift || '-');
-                        formData.append('tarikh', '-');
-                        formData.append('masa_masuk', '-');
-                        formData.append('masa_keluar', '-');
-                        formData.append('tindakan', '-');
-                        formData.append('catatan', '-');
+                        params.append('jawatan', record.role || '-');
+                        params.append('syif', record.shift || '-');
+                        params.append('tarikh', '-');
+                        params.append('masa_masuk', '-');
+                        params.append('masa_keluar', '-');
+                        params.append('tindakan', '-');
+                        params.append('catatan', '-');
                     }
 
-                    formData.append('rawData', JSON.stringify(record));
+                    params.append('rawData', JSON.stringify(record));
 
-                    fetch(SCRIPT_URL, {
+                    await fetch(SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        body: new URLSearchParams(formData)
+                        body: params
                     });
                 } catch (e) {
                     console.error("Gagal hantar ke spreadsheet", e);
@@ -494,20 +494,20 @@
                     localStorage.setItem('jenderak_data', JSON.stringify(data));
                     
                     try {
-                        const formData = new FormData();
+                        const params = new URLSearchParams();
                         
-                        formData.append('method', 'update'); 
+                        params.append('method', 'update'); 
                         
                         // Menghantar Id Original Sepenuhnya
                         let rawId = record.__backendId;
                         
-                        formData.append('backendId', rawId);
-                        formData.append('type', record.type);
-                        formData.append('nama', record.name || '-');
-                        formData.append('ic', record.ic || '-');
+                        params.append('backendId', rawId);
+                        params.append('type', record.type);
+                        params.append('nama', record.name || '-');
+                        params.append('ic', record.ic || '-');
                         
                         if (record.type === 'attendance') {
-                            formData.append('tarikh', record.date || '-');
+                            params.append('tarikh', record.date || '-');
                             
                             const normRecordDate = standardizeDate(record.date);
                             const allIn = data.filter(r => String(r.ic).trim() === String(record.ic).trim() && standardizeDate(r.date) === normRecordDate && r.action === 'masuk');
@@ -518,31 +518,31 @@
                             let masaMasuk = existingIn ? existingIn.time : (record.action === 'masuk' ? record.time : '-');
                             let masaKeluar = existingOut ? existingOut.time : (record.action === 'keluar' ? record.time : '-');
                             
-                            formData.append('masa_masuk', masaMasuk);
-                            formData.append('masa_keluar', masaKeluar);
-                            formData.append('tindakan', record.action); // Menghantar tindakan tulen supaya GS merekod dgn tepat
+                            params.append('masa_masuk', masaMasuk);
+                            params.append('masa_keluar', masaKeluar);
+                            params.append('tindakan', record.action); // Menghantar tindakan tulen supaya GS merekod dgn tepat
                             
                             let allNotes = [];
                             const allToday = data.filter(r => String(r.ic).trim() === String(record.ic).trim() && standardizeDate(r.date) === normRecordDate && r.note && r.note !== '-');
                             allToday.forEach(r => { if (!allNotes.includes(r.note)) allNotes.push(r.note); });
-                            formData.append('catatan', allNotes.length > 0 ? allNotes.join(" | ") : '-');
+                            params.append('catatan', allNotes.length > 0 ? allNotes.join(" | ") : '-');
                         } else if (record.type === 'user') {
-                            formData.append('jawatan', record.role || '-');
-                            formData.append('syif', record.shift || '-');
-                            formData.append('tarikh', '-');
-                            formData.append('masa_masuk', '-');
-                            formData.append('masa_keluar', '-');
-                            formData.append('tindakan', '-');
-                            formData.append('catatan', '-');
+                            params.append('jawatan', record.role || '-');
+                            params.append('syif', record.shift || '-');
+                            params.append('tarikh', '-');
+                            params.append('masa_masuk', '-');
+                            params.append('masa_keluar', '-');
+                            params.append('tindakan', '-');
+                            params.append('catatan', '-');
                         }
 
                         let rawRecord = { ...record, __backendId: rawId };
-                        formData.append('rawData', JSON.stringify(rawRecord));
+                        params.append('rawData', JSON.stringify(rawRecord));
 
-                        fetch(SCRIPT_URL, { 
+                        await fetch(SCRIPT_URL, { 
                             method: 'POST', 
                             mode: 'no-cors', 
-                            body: new URLSearchParams(formData) 
+                            body: params 
                         });
                     } catch (e) {}
 
@@ -561,8 +561,8 @@
                 localStorage.setItem('jenderak_deleted', JSON.stringify(deletedIds));
                 
                 try {
-                    const formData = new FormData();
-                    formData.append('method', 'delete');
+                    const params = new URLSearchParams();
+                    params.append('method', 'delete');
                     
                     let rawId = record.__backendId;
                     if(rawId.includes('_in')) rawId = rawId.replace('_in', '');
@@ -571,11 +571,11 @@
                     else if(rawId.includes('_bersebab')) rawId = rawId.replace('_bersebab', '');
                     else if(rawId.includes('_usr')) rawId = rawId.replace('_usr', '');
                     
-                    formData.append('backendId', rawId);
-                    fetch(SCRIPT_URL, { 
+                    params.append('backendId', rawId);
+                    await fetch(SCRIPT_URL, { 
                         method: 'POST', 
                         mode: 'no-cors', 
-                        body: new URLSearchParams(formData) 
+                        body: params 
                     });
                 } catch (e) {}
 
