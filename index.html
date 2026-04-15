@@ -146,8 +146,7 @@
         };
 
         // --- SDK MOCK UNTUK SIMPANAN SPREADSHEET & LOCAL ---
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCvJDS5NdSMDZriLW31pgLntJyGUQsAVu950AtfQrvDeKKEVPijMYmvNjcGbWVE7c/exec';
-        // PAUTAN DI BAWAH TELAH DIUBAHSUAI MENGIKUT ID SPREADSHEET ANDA
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFLXXSsWpRaLxlcHGbxSfHhxXlkKXbpilVNxm3AymXkyBr4fMWkhvHai4aeBoZIxci/exec';
         const GVIZ_URL = 'https://docs.google.com/spreadsheets/d/1-IP7z-QdLXOEqoPg-yHj-mIntVaxkwXUyoYnfGf1bGY/gviz/tq?tqx=out:json&sheet=Data%20Kehadiran';
 
         window.dataSdk = {
@@ -477,7 +476,7 @@
                     fetch(SCRIPT_URL, {
                         method: 'POST',
                         mode: 'no-cors',
-                        body: formData
+                        body: new URLSearchParams(formData)
                     });
                 } catch (e) {
                     console.error("Gagal hantar ke spreadsheet", e);
@@ -540,7 +539,11 @@
                         let rawRecord = { ...record, __backendId: rawId };
                         formData.append('rawData', JSON.stringify(rawRecord));
 
-                        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+                        fetch(SCRIPT_URL, { 
+                            method: 'POST', 
+                            mode: 'no-cors', 
+                            body: new URLSearchParams(formData) 
+                        });
                     } catch (e) {}
 
                     if (state.initialized) dataHandler.onDataChanged(data);
@@ -569,7 +572,11 @@
                     else if(rawId.includes('_usr')) rawId = rawId.replace('_usr', '');
                     
                     formData.append('backendId', rawId);
-                    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+                    fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors', 
+                        body: new URLSearchParams(formData) 
+                    });
                 } catch (e) {}
 
                 if (state.initialized) dataHandler.onDataChanged(data);
